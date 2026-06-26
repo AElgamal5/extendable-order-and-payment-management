@@ -3,12 +3,12 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
 {
-    use RefreshDatabase;
+    use LazilyRefreshDatabase;
 
     public function test_user_can_register(): void
     {
@@ -21,9 +21,9 @@ class AuthTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonStructure([
+                'success',
                 'message',
-                'user' => ['id', 'name', 'email'],
-                'token',
+                'data' => ['user' => ['id', 'name', 'email'], 'token'],
             ]);
     }
 
@@ -55,7 +55,7 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['message', 'token']);
+            ->assertJsonStructure(['success', 'message', 'data' => ['token']]);
     }
 
     public function test_user_cannot_login_with_invalid_credentials(): void
@@ -80,7 +80,7 @@ class AuthTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'user' => ['email' => $user->email],
+                'data' => ['user' => ['email' => $user->email]],
             ]);
     }
 
@@ -101,7 +101,7 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['message', 'token']);
+            ->assertJsonStructure(['success', 'message', 'data' => ['token']]);
     }
 
     public function test_cannot_register_with_password_mismatch(): void
@@ -143,6 +143,6 @@ class AuthTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Logged out successfully.']);
+            ->assertJson(['success' => true, 'message' => 'Logged out successfully.']);
     }
 }

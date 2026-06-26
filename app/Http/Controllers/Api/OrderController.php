@@ -9,54 +9,61 @@ use App\Actions\Orders\UpdateOrderAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Orders\StoreOrderRequest;
 use App\Http\Requests\Orders\UpdateOrderRequest;
-use App\Http\Resources\OrderCollection;
 use App\Http\Resources\OrderResource;
+use App\Http\Responses\ApiResponse;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function index(Request $request, ListOrdersAction $action): OrderCollection
+    public function index(Request $request, ListOrdersAction $action): JsonResponse
     {
         $orders = $action->handle($request->query('status'));
 
-        return new OrderCollection($orders);
+        return ApiResponse::success(
+            data: OrderResource::collection($orders),
+            message: 'Orders retrieved successfully.',
+            meta: [
+                'current_page' => $orders->currentPage(),
+                'last_page' => $orders->lastPage(),
+                'per_page' => $orders->perPage(),
+                'total' => $orders->total(),
+            ],
+        );
     }
 
     public function store(StoreOrderRequest $request, CreateOrderAction $action): JsonResponse
     {
         $order = $action->handle($request->user(), $request->validated());
 
-        return response()->json([
-            'message' => 'Order created successfully.',
+        return ApiResponse::created([
             'order' => new OrderResource($order),
-        ], 201);
+        ], 'Order created successfully.');
     }
 
-    public function show(Order $order): OrderResource
+    public function show(Order $order): JsonResponse
     {
         $order->load('items');
 
-        return new OrderResource($order);
+        return ApiResponse::success([
+            'order' => new OrderResource($order),
+        ]);
     }
 
     public function update(UpdateOrderRequest $request, Order $order, UpdateOrderAction $action): JsonResponse
     {
         $order = $action->handle($order, $request->validated());
 
-        return response()->json([
-            'message' => 'Order updated successfully.',
+        return ApiResponse::success([
             'order' => new OrderResource($order),
-        ]);
+        ], 'Order updated successfully.');
     }
 
     public function destroy(Order $order, DeleteOrderAction $action): JsonResponse
     {
         $action->handle($order);
 
-        return response()->json([
-            'message' => 'Order deleted successfully.',
-        ]);
+        return ApiResponse::ok('Order deleted successfully.');
     }
 }

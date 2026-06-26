@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
+use App\Http\Responses\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -19,26 +20,24 @@ class AuthController extends Controller
     {
         $result = $action->handle($request->validated());
 
-        return response()->json([
-            'message' => 'User registered successfully.',
+        return ApiResponse::created([
             'user' => new UserResource($result['user']),
             'token' => $result['token'],
-        ], 201);
+        ], 'User registered successfully.');
     }
 
     public function login(LoginRequest $request, LoginUserAction $action): JsonResponse
     {
         $result = $action->handle($request->validated());
 
-        return response()->json([
-            'message' => 'Login successful.',
+        return ApiResponse::success([
             'token' => $result['token'],
-        ]);
+        ], 'Login successful.');
     }
 
     public function me(Request $request): JsonResponse
     {
-        return response()->json([
+        return ApiResponse::success([
             'user' => new UserResource($request->user()),
         ]);
     }
@@ -47,18 +46,15 @@ class AuthController extends Controller
     {
         $action->handle();
 
-        return response()->json([
-            'message' => 'Logged out successfully.',
-        ]);
+        return ApiResponse::ok('Logged out successfully.');
     }
 
     public function refresh(RefreshTokenAction $action): JsonResponse
     {
         $result = $action->handle();
 
-        return response()->json([
-            'message' => 'Token refreshed successfully.',
+        return ApiResponse::success([
             'token' => $result['token'],
-        ]);
+        ], 'Token refreshed successfully.');
     }
 }

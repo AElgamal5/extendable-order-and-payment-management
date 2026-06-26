@@ -5,12 +5,12 @@ namespace Tests\Feature\Order;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
 {
-    use RefreshDatabase;
+    use LazilyRefreshDatabase;
 
     private function actingAsUser(): array
     {
@@ -35,8 +35,9 @@ class OrderTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonStructure([
+                'success',
                 'message',
-                'order' => ['id', 'customer_name', 'customer_email', 'status', 'total', 'items'],
+                'data' => ['order' => ['id', 'customer_name', 'customer_email', 'status', 'total', 'items']],
             ]);
 
         $this->assertDatabaseHas('orders', ['total' => 39.97]);
@@ -52,7 +53,7 @@ class OrderTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['data', 'meta']);
+            ->assertJsonStructure(['success', 'message', 'data', 'meta']);
     }
 
     public function test_can_filter_orders_by_status(): void
@@ -79,7 +80,7 @@ class OrderTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['data' => ['id', 'customer_name', 'status', 'items']]);
+            ->assertJsonStructure(['success', 'data' => ['order' => ['id', 'customer_name', 'status', 'items']]]);
     }
 
     public function test_can_update_order(): void
@@ -96,7 +97,7 @@ class OrderTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('order.total', '15.00');
+            ->assertJsonPath('data.order.total', '15.00');
     }
 
     public function test_can_delete_order_without_payments(): void

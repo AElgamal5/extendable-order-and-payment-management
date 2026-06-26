@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Http\Responses\ApiResponse;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,8 +16,6 @@ class OrderHasPaymentsException extends Exception
 
     public function render(Request $request): JsonResponse
     {
-        return response()->json([
-            'message' => $this->getMessage(),
-        ], $this->getCode());
+        return ApiResponse::error($this->getMessage(), $this->getCode());
     }
 }

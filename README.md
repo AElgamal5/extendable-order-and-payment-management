@@ -9,7 +9,7 @@ A Laravel-based REST API for managing orders and payments with a pluggable payme
 - Payment processing with pluggable gateway architecture
 - Strategy pattern for adding new payment gateways with zero controller changes
 - Consistent JSON error responses
-- 54 tests / 153 assertions
+- 56 tests / 175 assertions
 
 ## Requirements
 
@@ -94,6 +94,43 @@ app/
 
 All endpoints except `register` and `login` require `Authorization: Bearer {token}` header.
 
+### Response Format
+
+All API responses follow a consistent JSON structure:
+
+**Success:**
+```json
+{
+  "success": true,
+  "message": "Operation completed successfully.",
+  "data": { ... }
+}
+```
+
+**Paginated list:**
+```json
+{
+  "success": true,
+  "message": "Resource list retrieved.",
+  "data": [ ... ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 3,
+    "per_page": 15,
+    "total": 42
+  }
+}
+```
+
+**Error:**
+```json
+{
+  "success": false,
+  "message": "Human-readable error description.",
+  "errors": { ... }
+}
+```
+
 ### Authentication
 
 | Method | Endpoint | Description |
@@ -118,9 +155,12 @@ All endpoints except `register` and `login` require `Authorization: Bearer {toke
 **Response (201):**
 ```json
 {
+  "success": true,
   "message": "User registered successfully.",
-  "user": { "id": 1, "name": "John Doe", "email": "john@example.com" },
-  "token": "eyJ0eXAiOiJKV1Qi..."
+  "data": {
+    "user": { "id": 1, "name": "John Doe", "email": "john@example.com" },
+    "token": "eyJ0eXAiOiJKV1Qi..."
+  }
 }
 ```
 
@@ -136,14 +176,18 @@ All endpoints except `register` and `login` require `Authorization: Bearer {toke
 **Response (200):**
 ```json
 {
+  "success": true,
   "message": "Login successful.",
-  "token": "eyJ0eXAiOiJKV1Qi..."
+  "data": {
+    "token": "eyJ0eXAiOiJKV1Qi..."
+  }
 }
 ```
 
 **Error (422):**
 ```json
 {
+  "success": false,
   "message": "The provided credentials are incorrect.",
   "errors": { "email": ["The provided credentials are incorrect."] }
 }
@@ -173,20 +217,23 @@ All endpoints except `register` and `login` require `Authorization: Bearer {toke
 **Response (201):**
 ```json
 {
+  "success": true,
   "message": "Order created successfully.",
-  "order": {
-    "id": 1,
-    "user_id": 1,
-    "customer_name": "John Doe",
-    "customer_email": "john@example.com",
-    "status": "pending",
-    "total": "39.97",
-    "items": [
-      { "id": 1, "product_name": "Widget", "quantity": 2, "unit_price": "9.99", "subtotal": "19.98" },
-      { "id": 2, "product_name": "Gadget", "quantity": 1, "unit_price": "19.99", "subtotal": "19.99" }
-    ],
-    "created_at": "2026-06-26T12:00:00.000000Z",
-    "updated_at": "2026-06-26T12:00:00.000000Z"
+  "data": {
+    "order": {
+      "id": 1,
+      "user_id": 1,
+      "customer_name": "John Doe",
+      "customer_email": "john@example.com",
+      "status": "pending",
+      "total": "39.97",
+      "items": [
+        { "id": 1, "product_name": "Widget", "quantity": 2, "unit_price": "9.99", "subtotal": "19.98" },
+        { "id": 2, "product_name": "Gadget", "quantity": 1, "unit_price": "19.99", "subtotal": "19.99" }
+      ],
+      "created_at": "2026-06-26T12:00:00.000000Z",
+      "updated_at": "2026-06-26T12:00:00.000000Z"
+    }
   }
 }
 ```
@@ -211,16 +258,19 @@ All endpoints except `register` and `login` require `Authorization: Bearer {toke
 **Response (201):**
 ```json
 {
+  "success": true,
   "message": "Payment processed successfully.",
-  "payment": {
-    "id": 1,
-    "order_id": 1,
-    "payment_id": "cc_550e8400-e29b-41d4-a716-446655440000",
-    "method": "credit_card",
-    "status": "successful",
-    "transaction_id": "cc_550e8400-e29b-41d4-a716-446655440000",
-    "created_at": "2026-06-26T12:00:00.000000Z",
-    "updated_at": "2026-06-26T12:00:00.000000Z"
+  "data": {
+    "payment": {
+      "id": 1,
+      "order_id": 1,
+      "payment_id": "cc_550e8400-e29b-41d4-a716-446655440000",
+      "method": "credit_card",
+      "status": "successful",
+      "transaction_id": "cc_550e8400-e29b-41d4-a716-446655440000",
+      "created_at": "2026-06-26T12:00:00.000000Z",
+      "updated_at": "2026-06-26T12:00:00.000000Z"
+    }
   }
 }
 ```

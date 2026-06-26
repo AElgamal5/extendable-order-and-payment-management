@@ -5,12 +5,12 @@ namespace Tests\Feature\Payment;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
 class PaymentTest extends TestCase
 {
-    use RefreshDatabase;
+    use LazilyRefreshDatabase;
 
     private function actingAsUser(): array
     {
@@ -34,8 +34,9 @@ class PaymentTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonStructure([
+                'success',
                 'message',
-                'payment' => ['id', 'order_id', 'method', 'status', 'transaction_id'],
+                'data' => ['payment' => ['id', 'order_id', 'method', 'status', 'transaction_id']],
             ]);
     }
 
@@ -78,7 +79,7 @@ class PaymentTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['data', 'meta']);
+            ->assertJsonStructure(['success', 'message', 'data', 'meta']);
     }
 
     public function test_cannot_process_payment_on_cancelled_order(): void
@@ -150,13 +151,13 @@ class PaymentTest extends TestCase
             'Authorization' => "Bearer {$token}",
         ]);
 
-        $paymentId = $storeResponse->json('payment.id');
+        $paymentId = $storeResponse->json('data.payment.id');
 
         $response = $this->getJson("/api/payments/{$paymentId}", [
             'Authorization' => "Bearer {$token}",
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['data' => ['id', 'order_id', 'method', 'status']]);
+            ->assertJsonStructure(['success', 'data' => ['payment' => ['id', 'order_id', 'method', 'status']]]);
     }
 }

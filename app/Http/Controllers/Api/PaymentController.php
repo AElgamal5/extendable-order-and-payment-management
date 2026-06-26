@@ -6,19 +6,28 @@ use App\Actions\Payments\ListPaymentsAction;
 use App\Actions\Payments\ProcessPaymentAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Payments\ProcessPaymentRequest;
-use App\Http\Resources\PaymentCollection;
 use App\Http\Resources\PaymentResource;
+use App\Http\Responses\ApiResponse;
 use App\Models\Payment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    public function index(Request $request, ListPaymentsAction $action): PaymentCollection
+    public function index(Request $request, ListPaymentsAction $action): JsonResponse
     {
         $payments = $action->handle($request->query('order_id'));
 
-        return new PaymentCollection($payments);
+        return ApiResponse::success(
+            data: PaymentResource::collection($payments),
+            message: 'Payments retrieved successfully.',
+            meta: [
+                'current_page' => $payments->currentPage(),
+                'last_page' => $payments->lastPage(),
+                'per_page' => $payments->perPage(),
+                'total' => $payments->total(),
+            ],
+        );
     }
 
     public function store(ProcessPaymentRequest $request, ProcessPaymentAction $action): JsonResponse
@@ -28,16 +37,17 @@ class PaymentController extends Controller
             $request->input('method'),
         );
 
-        return response()->json([
-            'message' => 'Payment processed successfully.',
+        return ApiResponse::created([
             'payment' => new PaymentResource($payment),
-        ], 201);
+        ], 'Payment processed successfully.');
     }
 
-    public function show(Payment $payment): PaymentResource
+    public function show(Payment $payment): JsonResponse
     {
         $payment->load('order');
 
-        return new PaymentResource($payment);
+        return ApiResponse::success([
+            'payment' => new PaymentResource($payment),
+        ]);
     }
 }
