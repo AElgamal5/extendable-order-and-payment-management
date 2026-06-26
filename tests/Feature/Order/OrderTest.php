@@ -133,4 +133,59 @@ class OrderTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    public function test_cannot_create_order_without_authentication(): void
+    {
+        $response = $this->postJson('/api/orders', [
+            'items' => [['product_name' => 'Item', 'quantity' => 1, 'unit_price' => 10.00]],
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_cannot_create_order_with_empty_items(): void
+    {
+        [, $token] = $this->actingAsUser();
+
+        $response = $this->postJson('/api/orders', ['items' => []], [
+            'Authorization' => "Bearer {$token}",
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('items');
+    }
+
+    public function test_cannot_create_order_without_items_field(): void
+    {
+        [, $token] = $this->actingAsUser();
+
+        $response = $this->postJson('/api/orders', [], [
+            'Authorization' => "Bearer {$token}",
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('items');
+    }
+
+    public function test_cannot_show_nonexistent_order(): void
+    {
+        [, $token] = $this->actingAsUser();
+
+        $response = $this->getJson('/api/orders/99999', [
+            'Authorization' => "Bearer {$token}",
+        ]);
+
+        $response->assertStatus(404);
+    }
+
+    public function test_cannot_delete_nonexistent_order(): void
+    {
+        [, $token] = $this->actingAsUser();
+
+        $response = $this->deleteJson('/api/orders/99999', [], [
+            'Authorization' => "Bearer {$token}",
+        ]);
+
+        $response->assertStatus(404);
+    }
 }

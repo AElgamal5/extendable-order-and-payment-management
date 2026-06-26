@@ -104,6 +104,35 @@ class AuthTest extends TestCase
             ->assertJsonStructure(['message', 'token']);
     }
 
+    public function test_cannot_register_with_password_mismatch(): void
+    {
+        $response = $this->postJson('/api/auth/register', [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'password123',
+            'password_confirmation' => 'different-password',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors('password');
+    }
+
+    public function test_cannot_register_with_missing_fields(): void
+    {
+        $response = $this->postJson('/api/auth/register', []);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['name', 'email', 'password']);
+    }
+
+    public function test_cannot_login_with_missing_fields(): void
+    {
+        $response = $this->postJson('/api/auth/login', []);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email', 'password']);
+    }
+
     public function test_user_can_logout(): void
     {
         $user = User::factory()->create();

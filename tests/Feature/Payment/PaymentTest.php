@@ -81,6 +81,63 @@ class PaymentTest extends TestCase
             ->assertJsonStructure(['data', 'meta']);
     }
 
+    public function test_cannot_process_payment_on_cancelled_order(): void
+    {
+        [, $token] = $this->actingAsUser();
+        $order = Order::factory()->cancelled()->create();
+
+        $response = $this->postJson('/api/payments', [
+            'order_id' => $order->id,
+            'method' => 'credit_card',
+        ], [
+            'Authorization' => "Bearer {$token}",
+        ]);
+
+        $response->assertStatus(409);
+    }
+
+    public function test_cannot_process_payment_on_nonexistent_order(): void
+    {
+        [, $token] = $this->actingAsUser();
+
+        $response = $this->postJson('/api/payments', [
+            'order_id' => 99999,
+            'method' => 'credit_card',
+        ], [
+            'Authorization' => "Bearer {$token}",
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_cannot_process_payment_without_authentication(): void
+    {
+        $response = $this->postJson('/api/payments', [
+            'order_id' => 1,
+            'method' => 'credit_card',
+        ]);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_process_payment_sets_order_to_paid(): void
+    {
+        [, $token] = $this->actingAsUser();
+        $order = Order::factory()->confirmed()->create();
+
+        $this->postJson('/api/payments', [
+            'order_id' => $order->id,
+            'method' => 'credit_card',
+        ], [
+            'Authorization' => "Bearer {$token}",
+        ]);
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'status' => 'paid',
+        ]);
+    }
+
     public function test_can_show_payment(): void
     {
         [, $token] = $this->actingAsUser();
