@@ -9,7 +9,7 @@ A Laravel-based REST API for managing orders and payments with a pluggable payme
 - Payment processing with pluggable gateway architecture
 - Strategy pattern for adding new payment gateways with zero controller changes
 - Consistent JSON error responses
-- 44 tests / 119 assertions
+- 54 tests / 153 assertions
 
 ## Requirements
 
@@ -57,7 +57,7 @@ Extendable_Order_Payment_API.postman_collection.json
 3. Start with **Authentication → Register** or **Login** — the JWT token is automatically saved to `{{token}}` via Postman test scripts
 4. All subsequent protected endpoints use `{{token}}` via the `Authorization: Bearer {{token}}` header
 
-The collection is organized into three folders — **Authentication** (5 requests), **Orders** (6 requests), and **Payments** (6 requests, including an error case).
+The collection is organized into three folders — **Authentication** (7 requests, including 401 and 422 error cases), **Orders** (9 requests, including 422, 404, and 409 error cases), and **Payments** (9 requests, including 409 and 422 error cases).
 
 ## Architecture
 
@@ -153,7 +153,7 @@ All endpoints except `register` and `login` require `Authorization: Bearer {toke
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/orders?status=` | List orders (optionally filter by status) |
+| GET | `/api/orders?status=` | List orders (optionally filter by `pending`, `confirmed`, `paid`, or `cancelled`) |
 | POST | `/api/orders` | Create order with items |
 | GET | `/api/orders/{id}` | Show order details |
 | PUT | `/api/orders/{id}` | Update order items |
@@ -233,6 +233,15 @@ All endpoints except `register` and `login` require `Authorization: Bearer {toke
 | Delete blocked if payments exist | Returns `409 Conflict` |
 | Successful payment sets order to `paid` | Order status auto-updated |
 | Order total auto-calculated | Sum of `item.qty × item.unit_price` |
+
+### Order Statuses
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Initial state after creation |
+| `confirmed` | Ready for payment processing |
+| `paid` | Payment completed successfully |
+| `cancelled` | Order cancelled |
 
 ## Adding a New Payment Gateway
 
