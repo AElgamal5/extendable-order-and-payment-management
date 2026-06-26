@@ -42,6 +42,23 @@ php artisan jwt:secret
 php artisan test --compact
 ```
 
+## Postman Collection
+
+An importable Postman collection is included in the project root:
+
+```
+Extendable_Order_Payment_API.postman_collection.json
+```
+
+### How to use
+
+1. Open Postman → **Import** → Upload the JSON file
+2. The collection creates a `{{base_url}}` variable (default: `http://localhost:8000`)
+3. Start with **Authentication → Register** or **Login** — the JWT token is automatically saved to `{{token}}` via Postman test scripts
+4. All subsequent protected endpoints use `{{token}}` via the `Authorization: Bearer {{token}}` header
+
+The collection is organized into three folders — **Authentication** (5 requests), **Orders** (6 requests), and **Payments** (6 requests, including an error case).
+
 ## Architecture
 
 ```
