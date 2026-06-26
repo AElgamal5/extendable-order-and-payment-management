@@ -6,8 +6,8 @@ use App\Http\Controllers\Api\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login'])->name('login');
+    Route::post('register', [AuthController::class, 'register'])->middleware('throttle:auth');
+    Route::post('login', [AuthController::class, 'login'])->name('login')->middleware('throttle:auth');
 
     Route::middleware('auth:api')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
