@@ -110,8 +110,8 @@ All endpoints except `register` and `login` require `Authorization: Bearer {toke
 {
   "name": "John Doe",
   "email": "john@example.com",
-  "password": "password123",
-  "password_confirmation": "password123"
+  "password": "Password123!",
+  "password_confirmation": "Password123!"
 }
 ```
 
@@ -129,7 +129,7 @@ All endpoints except `register` and `login` require `Authorization: Bearer {toke
 ```json
 {
   "email": "john@example.com",
-  "password": "password123"
+  "password": "Password123"
 }
 ```
 
