@@ -28,7 +28,7 @@ class PaymentFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => PaymentStatus::Successful,
-            'transaction_id' => 'txn_' . Str::random(10),
+            'transaction_id' => 'txn_'.Str::random(10),
         ]);
     }
 
