@@ -8,13 +8,13 @@ class UpdateOrderAction
 {
     public function handle(Order $order, array $data): Order
     {
-        if (!isset($data['items'])) {
+        if (! isset($data['items'])) {
             return $order;
         }
 
-        $total = collect($data['items'])->sum(fn($item) => $item['quantity'] * $item['unit_price']);
+        $total = collect($data['items'])->sum(fn ($item) => $item['quantity'] * $item['unit_price']);
 
-        $items = collect($data['items'])->map(fn($item) => [
+        $items = collect($data['items'])->map(fn ($item) => [
             'product_name' => $item['product_name'],
             'quantity' => $item['quantity'],
             'unit_price' => $item['unit_price'],
