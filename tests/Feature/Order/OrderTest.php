@@ -188,4 +188,44 @@ class OrderTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    public function test_can_update_order_status(): void
+    {
+        [, $token] = $this->actingAsUser();
+        $order = Order::factory()->create(['status' => 'pending']);
+
+        $response = $this->patchJson("/api/orders/{$order->id}/status", [
+            'status' => 'confirmed',
+        ], [
+            'Authorization' => "Bearer {$token}",
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.order.status', 'confirmed');
+    }
+
+    public function test_cannot_update_order_status_with_invalid_status(): void
+    {
+        [, $token] = $this->actingAsUser();
+        $order = Order::factory()->create();
+
+        $response = $this->patchJson("/api/orders/{$order->id}/status", [
+            'status' => 'invalid_status',
+        ], [
+            'Authorization' => "Bearer {$token}",
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_cannot_update_order_status_without_authentication(): void
+    {
+        $order = Order::factory()->create();
+
+        $response = $this->patchJson("/api/orders/{$order->id}/status", [
+            'status' => 'confirmed',
+        ]);
+
+        $response->assertStatus(401);
+    }
 }

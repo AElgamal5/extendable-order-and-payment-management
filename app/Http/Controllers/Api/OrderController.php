@@ -6,9 +6,12 @@ use App\Actions\Orders\CreateOrderAction;
 use App\Actions\Orders\DeleteOrderAction;
 use App\Actions\Orders\ListOrdersAction;
 use App\Actions\Orders\UpdateOrderAction;
+use App\Actions\Orders\UpdateOrderStatusAction;
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Orders\StoreOrderRequest;
 use App\Http\Requests\Orders\UpdateOrderRequest;
+use App\Http\Requests\Orders\UpdateOrderStatusRequest;
 use App\Http\Resources\OrderResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Order;
@@ -65,5 +68,14 @@ class OrderController extends Controller
         $action->handle($order);
 
         return ApiResponse::ok('Order deleted successfully.');
+    }
+
+    public function updateStatus(UpdateOrderStatusRequest $request, Order $order, UpdateOrderStatusAction $action): JsonResponse
+    {
+        $order = $action->handle($order, $request->enum('status', OrderStatus::class));
+
+        return ApiResponse::success([
+            'order' => new OrderResource($order),
+        ], 'Order status updated successfully.');
     }
 }

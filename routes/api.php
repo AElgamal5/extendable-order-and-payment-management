@@ -19,4 +19,8 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth:api')->group(function () {
     Route::apiResource('orders', OrderController::class);
     Route::apiResource('payments', PaymentController::class)->only(['index', 'store', 'show']);
+
+    if (! app()->isProduction()) {
+        Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus']);
+    }
 });

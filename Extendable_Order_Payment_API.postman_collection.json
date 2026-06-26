@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Extendable Order & Payment API",
-    "description": "REST API for managing orders and payments with pluggable payment gateways.\n\n## Authentication\nRegister or login to get a JWT token. Use the token as a Bearer token in the Authorization header for protected endpoints.\n\n## Business Rules\n- Payments can only be processed for orders with status \"confirmed\"\n- Orders cannot be deleted if they have associated payments\n- Successful payments automatically set the order status to \"paid\"",
+    "description": "REST API for managing orders and payments with pluggable payment gateways.\n\n## Authentication\nRegister or login to get a JWT token. Use the token as a Bearer token in the Authorization header for protected endpoints.\n\n## Business Rules\n- Payments can only be processed for orders with status \"confirmed\"\n- Orders cannot be deleted if they have associated payments\n- Successful payments automatically set the order status to \"paid\"\n\n## Testing (Non-Production)\nA PATCH /api/orders/{id}/status endpoint is available in local/testing environments to manually update order status for development and testing workflows.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -295,6 +295,44 @@
               "raw": "{{base_url}}/api/orders/1",
               "host": ["{{base_url}}"],
               "path": ["api", "orders", "1"]
+            }
+          }
+        },
+        {
+          "name": "Testing: Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "1", "status"]
+            }
+          }
+        },
+        {
+          "name": "Error: 422 Invalid Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"invalid_status\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/1/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "1", "status"]
             }
           }
         }

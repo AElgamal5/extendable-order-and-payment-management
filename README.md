@@ -57,7 +57,7 @@ Extendable_Order_Payment_API.postman_collection.json
 3. Start with **Authentication → Register** or **Login** — the JWT token is automatically saved to `{{token}}` via Postman test scripts
 4. All subsequent protected endpoints use `{{token}}` via the `Authorization: Bearer {{token}}` header
 
-The collection is organized into three folders — **Authentication** (7 requests, including 401 and 422 error cases), **Orders** (9 requests, including 422, 404, and 409 error cases), and **Payments** (9 requests, including 409 and 422 error cases).
+The collection is organized into three folders — **Authentication** (7 requests, including 401 and 422 error cases), **Orders** (11 requests, including 422, 404, 409, and testing error cases), and **Payments** (9 requests, including 409 and 422 error cases).
 
 ## Architecture
 
@@ -235,6 +235,20 @@ All API responses follow a consistent JSON structure:
       "updated_at": "2026-06-26T12:00:00.000000Z"
     }
   }
+}
+```
+
+### Testing (Non-Production)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| PATCH | `/api/orders/{id}/status` | Update order status for testing |
+
+This endpoint is only available in `local` and `testing` environments. It allows you to manually advance an order through statuses (`pending` → `confirmed` → `paid` → `cancelled`) without processing a real payment. Useful for development workflows and testing error scenarios.
+
+```json
+{
+  "status": "confirmed"
 }
 ```
 
