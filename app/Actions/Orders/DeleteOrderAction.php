@@ -2,16 +2,16 @@
 
 namespace App\Actions\Orders;
 
+use App\Exceptions\OrderHasPaymentsException;
 use App\Models\Order;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class DeleteOrderAction
 {
     public function handle(Order $order): void
     {
-        // if ($order->payments()->exists()) {
-        //     throw new ConflictHttpException('Cannot delete order with associated payments.');
-        // }
+        if ($order->payments()->exists()) {
+            throw new OrderHasPaymentsException;
+        }
 
         $order->delete();
     }
